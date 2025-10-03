@@ -12,7 +12,15 @@ import connectDB from "./db/index.js"
 
 
 connectDB()
-
+.then(() => {
+    app.lesten(process.env.PORT, () =>{
+        console.log(`Server is running on port ${process.env.PORT}`)    
+    })
+})
+.catch((error) => {
+    console.error("mongo DB connection error:", error)
+    throw error
+})
 
 
 
