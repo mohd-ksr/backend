@@ -5,7 +5,8 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import fs from "fs"
 import jwt from 'jsonwebtoken';
-import { use } from 'react';
+import mongoose from 'mongoose';
+// import { use } from 'react';
 
 const generateAccessAndRefreshToken = async (userId) => {
    try {
@@ -16,7 +17,7 @@ const generateAccessAndRefreshToken = async (userId) => {
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
         
-        user.refershToken = refreshToken;
+        user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
         
         return { accessToken, refreshToken };
@@ -149,7 +150,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id, 
         {
-            $set: { refershToken: undefined }
+            $unset: { refershToken: 1 }
         }, 
         {new: true}
     );
@@ -165,10 +166,12 @@ const logoutUser = asyncHandler(async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incomingRefreshToken = req.cookies.refershToken || req.body.refershToken
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
     if(!incomingRefreshToken){
         throw new ApiError(400, "Refresh token is required!");
     }
+    console.log("Incoming Refresh Token:", incomingRefreshToken);
+
 
     try {
         const decodedToken = jwt.verify(
@@ -179,7 +182,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         if(!user){
             throw new ApiError(400, "Invalid refresh token - user not found");
         }
-        if(user.refershToken !== incomingRefreshToken){
+        if(user.refreshToken !== incomingRefreshToken){
             throw new ApiError(400, "Refresh token expired or mismatched");
         }
     

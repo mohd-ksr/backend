@@ -37,7 +37,7 @@ router.route("/change-password").post(varifyJWT, changeCurrentPassword)
 router.route("/current-user").get(varifyJWT, getCurrentUser);
 router.route("/update-account").patch(varifyJWT, updateAccountDetails);
 router.route("/update-avatar").patch(varifyJWT, upload.single("avatar"), updateUserAvatar);
-router.route("/update-cover-image").put(varifyJWT, upload.single("coverImage"), updateUserCoverImage);
+router.route("/update-cover-image").patch(varifyJWT, upload.single("coverImage"), updateUserCoverImage);
 router.route("/c/:username").get(varifyJWT, getUserChannelsDetails);
 router.route("/history").get(varifyJWT, getWatchHistory);
 
